@@ -3,6 +3,7 @@ package de.smartsquare.kortance.scenarios
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.int
+import com.github.ajalt.clikt.parameters.types.long
 import com.hivemq.client.mqtt.mqtt3.message.publish.Mqtt3Publish
 import de.smartsquare.kortance.ClientFactory
 import de.smartsquare.kortance.MqttCommand
@@ -24,6 +25,9 @@ class Stress : MqttCommand("Spawns a wave of clients to test the broker autoscal
 
     private val payloadSize: Int by option("--payloadSize", help = "The payload size per message.")
         .int().default(150)
+
+    private val waveDelay: Long by option("-d", "--delay", help = "The delay between the waves in milliseconds.")
+        .long().default(30_000L)
 
     override fun run() {
         repeat(waves) { wave ->
@@ -50,7 +54,7 @@ class Stress : MqttCommand("Spawns a wave of clients to test the broker autoscal
                 }
             }
 
-            Thread.sleep(30_000)
+            Thread.sleep(waveDelay)
         }
 
         println("All jobs spawned...")

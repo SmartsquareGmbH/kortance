@@ -27,7 +27,7 @@ class Stress : MqttCommand("Spawns a wave of clients to test the broker autoscal
 
     override fun run() {
         repeat(waves) { wave ->
-            println("Launching wave ${wave + 1} / ${waves}")
+            println("Launching wave ${wave + 1} / $waves")
 
             repeat(jobs) { job ->
                 GlobalScope.launch {

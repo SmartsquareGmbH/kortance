@@ -5,12 +5,8 @@ buildscript {
         kotlinVersion = "1.4.10"
         ktlintGradleVersion = "9.4.0"
         ktlintVersion = "0.39.0"
-        jacksonVersion = "2.11.2"
-        kluentVersion = "1.61"
-        junitVersion = "5.7.0"
         detektVersion = "1.13.1"
         hivemqMqttClientVersion = "1.2.1"
-        kotlinArgparser = "2.0.7"
         cliktVersion = "3.0.1"
         kotlinCoroutineVersion = "1.3.9"
         jibGradlePluginVersion = "2.5.0"
@@ -47,17 +43,9 @@ dependencies {
 
     implementation "com.github.ajalt.clikt:clikt:$cliktVersion"
 
-    implementation "com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion"
-    implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion"
-
     implementation "com.hivemq:hivemq-mqtt-client:$hivemqMqttClientVersion"
+
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-rx2:$kotlinCoroutineVersion"
-
-    testImplementation "org.junit.jupiter:junit-jupiter:$junitVersion"
-
-    testImplementation("org.amshove.kluent:kluent:$kluentVersion") {
-        exclude module: "mockito-kotlin"
-    }
 }
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {

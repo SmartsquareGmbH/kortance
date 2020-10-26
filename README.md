@@ -1,39 +1,49 @@
 # kortance
 
+MQTT load testing made easy. :gun:
+
 ```shell script
-deen@bulldozer:~/gh/kortance$ ./gradlew installDist
-deen@bulldozer:~/gh/kortance$ ./build/install/kortance/bin/kortance 127.0.0.1 1883 -w 10 -j 1 -m 10
+deen@bulldozer:~/gh/kortance$ docker pull docker.pkg.github.com/smartsquaregmbh/kortance/kortance:0.0.1
+deen@bulldozer:~/gh/kortance$ docker run docker.pkg.github.com/smartsquaregmbh/kortance/kortance:0.0.1 spike 127.0.0.1 1883
 ```
 
-## Globale Optionen
+## Global Options
 
-| Shorthand | Name          | Default | Description                                                     |
-|-----------|---------------|---------|-----------------------------------------------------------------|
-| -u        | --username    | -       | Der Benutzername, der von allen Clients verwendet wird.         |
-| -p        | --password    | -       | Das Passwort, das von allen Clients verwendet wird.             |
-| -s        | --secure      | false   | Ob die Verbindung via TLS aufgebaut wird.                       |
+| Shorthand | Name          | Default |
+|-----------|---------------|---------|
+| -u        | --username    | -       | 
+| -p        | --password    | -       | 
+| -s        | --secure      | false   |
 
-## Szenarien 
+## Scenarios
+
+Kortanes offers three load testing scenarios either for testing spikes, long lasting load or wave loading.
 
 ### Stress
 ![](docs/stress.png)
 
-In diesem Szenario steigt die Nutzerzahl bis zu einem Peak und nimmt ab diesem Punkt wieder ab. 
-Dieses Szenario kann z. B. genutzt werden, um die automatische Skalierung des Brokers zu testen.
+This scenario spawns waves of clients which publish thousand messages each per default.
+This can for example be used to test the (automatic) horizontal broker scaling.
 
 | Shorthand | Name          | Default | Description                                                     |
 |-----------|---------------|---------|-----------------------------------------------------------------|
-| -w        | --waves       | 10      | Die Anzahl der Wellen die gestartet werden sollen.              |
-| -j        | --jobs        | 10      | Die Anzahl der Jobs oder Clients pro Welle.                     |
-| -m        | --messages    | 1000    | Die Anzahl der Nachrichten pro Job.                             |
-| -d        | --delay       | 30000   | Die Verzögerung zwischen den Wellen in Millisekunden.         
+| -w        | --waves       | 10      | The number of waves.                                            |
+| -j        | --jobs        | 10      | The amount of clients per wave.                                 |
+| -m        | --messages    | 1000    | The number of messages published by each client.                |
+| -d        | --delay       | 30000   | The delay between each wave.                                    |
 
 ### Soak
 ![](docs/soak.png)
-In diesem Szenario steigt die Nutzerzahl bis zu einem Schwellwert und verharrt dort bis die Anwendung terminiert wird.
-Mit diesem Szenario können die Langzeiteffekte wie z. B. Memory Leaks getestet werden.
+
+This scenario spawns a defined number of users which publish messages until the program is terminated.
+This can be useful for testing the long-term behaviour or detect memory leaks.
 
 ### Spike
 ![](docs/spike.png)
-Dieses Szenario veröffentlich schnellstmöglich die definierte Zahl an Nachrichten, um das Verhalten unter extremer Last zu beobachten.
+
+This scenario publishes the defined number of messages asap to test the behvaiour during load spikes.
+
+| Shorthand | Name          | Default | Description                                                     |
+|-----------|---------------|---------|-----------------------------------------------------------------|
+| -m        | --messages    | 1000    | The number of messages published by each client.                |
 

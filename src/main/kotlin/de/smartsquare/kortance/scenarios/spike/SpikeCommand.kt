@@ -13,9 +13,9 @@ class SpikeCommand : MqttCommand("Publishes a defined number of messages in the 
         .int().default(1000)
 
     override fun run() {
-        print("Publishing $messageCount messages... ")
-
         with(ClientFactory.createClient(host, port, credentials, ssl)) {
+            print("Publishing $messageCount messages... ")
+
             connect()
 
             repeat(messageCount) {

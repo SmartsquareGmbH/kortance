@@ -1,6 +1,7 @@
 package de.smartsquare.kortance
 
 import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.core.UsageError
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
@@ -30,9 +31,14 @@ abstract class MqttCommand(help: String) : CliktCommand(help) {
         help = "The password or blank if anonymous is allowed"
     )
 
-    protected val credentials = if (password != null && username != null) {
-        Credentials(username!!, password!!)
-    } else {
-        null
-    }
+    protected val credentials
+        get() = if (password != null && username != null) {
+            Credentials(username!!, password!!)
+        } else if (password != null && username == null) {
+            throw UsageError(text = "Missing the username. (-u, --username)")
+        } else if (username != null && password == null) {
+            throw UsageError(text = "Missing the password. (-p, --password)")
+        } else {
+            null
+        }
 }

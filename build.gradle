@@ -13,6 +13,7 @@ buildscript {
         kotlinArgparser = "2.0.7"
         cliktVersion = "3.0.1"
         kotlinCoroutineVersion = "1.3.9"
+        jibGradlePluginVersion = "2.5.0"
     }
 
     repositories {
@@ -22,6 +23,8 @@ buildscript {
 
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+
+        classpath "gradle.plugin.com.google.cloud.tools:jib-gradle-plugin:$jibGradlePluginVersion"
 
         classpath "io.gitlab.arturbosch.detekt:detekt-gradle-plugin:$detektVersion"
         classpath "org.jlleitschuh.gradle:ktlint-gradle:$ktlintGradleVersion"
@@ -36,6 +39,7 @@ apply plugin: "kotlin"
 apply plugin: "application"
 apply plugin: "io.gitlab.arturbosch.detekt"
 apply plugin: "org.jlleitschuh.gradle.ktlint"
+apply plugin: "com.google.cloud.tools.jib"
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
@@ -74,6 +78,22 @@ detekt {
         html.destination = file("$buildDir/reports/detekt/detekt.html")
     }
 }
+
+jib {
+    container {
+        mainClass = "de.smartsquare.kortance.KortanceKt"
+    }
+
+    from {
+        image = "adoptopenjdk/openjdk14-openj9:alpine-slim"
+    }
+
+    container {
+        jvmFlags = ["-Xquickstart"]
+    }
+}
+
+jibDockerBuild.dependsOn check
 
 application {
     mainClassName = "de.smartsquare.kortance.KortanceKt"

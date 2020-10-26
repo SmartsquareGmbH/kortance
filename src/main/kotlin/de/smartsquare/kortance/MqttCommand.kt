@@ -13,14 +13,24 @@ abstract class MqttCommand(help: String) : CliktCommand(help) {
     protected val port: Int by argument(name = "port", help = "The broker port (typically 1883 or 8883)")
         .int()
 
-    private val username: String? by option("-u", "--username", help = "The username or blank if anonymous is allowed")
-
-    private val password: String? by option("-p", "--password", help = "The password or blank if anonymous is allowed")
-
     protected val ssl: Boolean by option("-s", "--secure", help = "If the connection should be established with tls.")
         .flag()
 
-    protected val credentials = if (username != null && password != null) {
+    private val username by option(
+        "-u",
+        "--username",
+        envvar = "KORTANCE_MQTT_USERNAME",
+        help = "The username or blank if anonymous is allowed"
+    )
+
+    private val password by option(
+        "-p",
+        "--password",
+        envvar = "KORTANCE_MQTT_PASSWORD",
+        help = "The password or blank if anonymous is allowed"
+    )
+
+    protected val credentials = if (password != null && username != null) {
         Credentials(username!!, password!!)
     } else {
         null

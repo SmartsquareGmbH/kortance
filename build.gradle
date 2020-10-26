@@ -76,5 +76,5 @@ detekt {
 }
 
 application {
-    mainClassName = "de.smartsquare.kortance.MainKt"
+    mainClassName = "de.smartsquare.kortance.KortanceKt"
 }

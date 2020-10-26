@@ -8,6 +8,10 @@ exceptions:
   TooGenericExceptionCaught:
     active: false
 
+empty-blocks:
+  EmptyFunctionBlock:
+    active: false
+
 performance:
   SpreadOperator:
     active: false

@@ -6,7 +6,12 @@ import de.smartsquare.kortance.scenarios.stress.StressCommand
 import picocli.CommandLine
 import java.util.concurrent.Callable
 
-@CommandLine.Command(name = "kortance", subcommands = [StressCommand::class, SpikeCommand::class, SoakCommand::class])
+@CommandLine.Command(
+    name = "kortance",
+    version = ["0.4.0"],
+    subcommands = [StressCommand::class, SpikeCommand::class, SoakCommand::class],
+    mixinStandardHelpOptions = true
+)
 class Kortance : Callable<Int> {
 
     @CommandLine.Spec

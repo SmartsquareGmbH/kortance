@@ -40,6 +40,6 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: build/graal/kortance
-          asset_name: kortance-${{ matrix.os }}-${{ github.ref }}
+          asset_name: kortance-${{ matrix.os }}
           tag: ${{ github.ref }}
           overwrite: true

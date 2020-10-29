@@ -2,10 +2,14 @@
 
 MQTT load testing made easy. :gun:
 
-```shell script
-deen@bulldozer:~/gh/kortance$ docker pull docker.pkg.github.com/smartsquaregmbh/kortance/kortance:0.0.1
-deen@bulldozer:~/gh/kortance$ docker run docker.pkg.github.com/smartsquaregmbh/kortance/kortance:0.0.1 spike 127.0.0.1 1883
-```
+### Installation
+
+Kortance binaries are currently available for macOS and ubuntu. Feel free to contribute if you want kortance to be
+available through apt, brew or whatever package manager you prefer. :)
+
+1. `wget https://github.com/SmartsquareGmbH/kortance/releases/download/<version>/kortance-ubuntu-latest`
+2. `sudo chmod +x ./kortance-ubuntu-latest`
+3. `sudo mv ./kortance-ubuntu-latest /usr/local/bin/kortance`
 
 ## Global Options
 

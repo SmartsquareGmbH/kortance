@@ -26,7 +26,7 @@ class StressCommand : Callable<Int> {
     private var credentialOptions: CredentialOptions? = null
 
     @CommandLine.ArgGroup(exclusive = false)
-    private lateinit var waveOptions: WaveOptions
+    private var waveOptions: WaveOptions = WaveOptions()
 
     @CommandLine.Option(names = ["-j", "--jobs"])
     private var jobs: Int = 10

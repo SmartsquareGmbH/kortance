@@ -1,19 +1,31 @@
 package de.smartsquare.kortance.scenarios.spike
 
-import com.github.ajalt.clikt.parameters.options.default
-import com.github.ajalt.clikt.parameters.options.option
-import com.github.ajalt.clikt.parameters.types.int
 import de.smartsquare.kortance.ClientFactory
-import de.smartsquare.kortance.MqttCommand
+import de.smartsquare.kortance.CredentialOptions
 import de.smartsquare.kortance.randomPayload
+import picocli.CommandLine
+import java.util.concurrent.Callable
 
-class SpikeCommand : MqttCommand("Publishes a defined number of messages in the shortes period of time.") {
+@CommandLine.Command(name = "spike")
+class SpikeCommand : Callable<Int> {
 
-    private val messageCount: Int by option("-m", "--messages", help = "The amount of messages published per job.")
-        .int().default(1000)
+    @CommandLine.Parameters(index = "0", description = ["The hostname of the broker."])
+    private lateinit var host: String
 
-    override fun run() {
-        with(ClientFactory.createClient(host, port, credentials, ssl)) {
+    @CommandLine.Parameters(index = "1", description = ["The port of the broker."])
+    private var port: Int = 1883
+
+    @CommandLine.Option(names = ["-s", "--ssl"], description = ["If the communication should be encrypted using TLS."])
+    private var ssl: Boolean = false
+
+    @CommandLine.ArgGroup(exclusive = false)
+    private var credentialOptions: CredentialOptions? = null
+
+    @CommandLine.Option(names = ["-m", "--messages"])
+    private var messageCount: Int = 1000
+
+    override fun call(): Int {
+        with(ClientFactory.createClient(host, port, credentialOptions, ssl)) {
             print("Publishing $messageCount messages... ")
 
             connect()
@@ -26,5 +38,7 @@ class SpikeCommand : MqttCommand("Publishes a defined number of messages in the 
         }
 
         println("done.")
+
+        return 0
     }
 }

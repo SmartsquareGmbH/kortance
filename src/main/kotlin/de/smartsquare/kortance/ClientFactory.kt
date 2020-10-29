@@ -5,7 +5,7 @@ import com.hivemq.client.mqtt.mqtt3.Mqtt3Client
 
 object ClientFactory {
 
-    fun createClient(host: String, port: Int, credentials: Credentials?, ssl: Boolean): Mqtt3BlockingClient {
+    fun createClient(host: String, port: Int, credentials: CredentialOptions?, ssl: Boolean): Mqtt3BlockingClient {
         val baseClient = Mqtt3Client.builder()
             .serverHost(host)
             .serverPort(port)

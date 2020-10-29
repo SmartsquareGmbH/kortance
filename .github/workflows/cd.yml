@@ -1,8 +1,9 @@
 name: CD
 
 on:
-  release:
-    types: [published]
+  push:
+    tags:
+      - '*'
 
 jobs:
   publish:
@@ -26,20 +27,15 @@ jobs:
             ${{ runner.os }}-gradle
 
       - name: Build Backend
-        run: ./gradlew jibDockerBuild
+        run: ./gradlew nativeImage
         env:
           DOCKER_BUILDKIT: 1
 
-      - uses: azure/docker-login@v1
+      - name: Upload binaries to release
+        uses: svenstaro/upload-release-action@v2
         with:
-          login-server: docker.pkg.github.com
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Push images
-        run: |
-          docker tag kortance docker.pkg.github.com/smartsquaregmbh/kortance/kortance:$VERSION
-
-          docker push docker.pkg.github.com/smartsquaregmbh/kortance/kortance:$VERSION
-        env:
-          VERSION: ${{ github.event.release.tag_name }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: build/graal/kortance
+          asset_name: kortance-ubuntu
+          tag: ${{ github.ref }}
+          overwrite: true

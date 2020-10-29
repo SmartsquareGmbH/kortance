@@ -1,15 +1,14 @@
 buildscript {
     ext {
-        javaVersion = JavaVersion.VERSION_11
+        javaVersion = JavaVersion.VERSION_1_8
         gradleVersion = "6.6.1"
         kotlinVersion = "1.4.10"
         ktlintGradleVersion = "9.4.0"
         ktlintVersion = "0.39.0"
         detektVersion = "1.13.1"
         hivemqMqttClientVersion = "1.2.1"
-        cliktVersion = "3.0.1"
         kotlinCoroutineVersion = "1.3.9"
-        jibGradlePluginVersion = "2.5.0"
+        picoVersion = "4.5.2"
     }
 
     repositories {
@@ -20,7 +19,7 @@ buildscript {
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
 
-        classpath "gradle.plugin.com.google.cloud.tools:jib-gradle-plugin:$jibGradlePluginVersion"
+        classpath "gradle.plugin.com.palantir.graal:gradle-graal:0.7.1-20-g113a84d"
 
         classpath "io.gitlab.arturbosch.detekt:detekt-gradle-plugin:$detektVersion"
         classpath "org.jlleitschuh.gradle:ktlint-gradle:$ktlintGradleVersion"
@@ -32,16 +31,18 @@ repositories {
 }
 
 apply plugin: "kotlin"
+apply plugin: "kotlin-kapt"
 apply plugin: "application"
+apply plugin: 'com.palantir.graal'
 apply plugin: "io.gitlab.arturbosch.detekt"
 apply plugin: "org.jlleitschuh.gradle.ktlint"
-apply plugin: "com.google.cloud.tools.jib"
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     implementation "org.jetbrains.kotlin:kotlin-reflect"
 
-    implementation "com.github.ajalt.clikt:clikt:$cliktVersion"
+    implementation "info.picocli:picocli:$picoVersion"
+    kapt "info.picocli:picocli-codegen:$picoVersion"
 
     implementation "com.hivemq:hivemq-mqtt-client:$hivemqMqttClientVersion"
 
@@ -56,6 +57,12 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
     }
 }
 
+kapt {
+    arguments {
+        arg("project", "${project.name}")
+    }
+}
+
 detekt {
     config = files("${project.rootDir}/detekt.yml")
 
@@ -67,21 +74,12 @@ detekt {
     }
 }
 
-jib {
-    container {
-        mainClass = "de.smartsquare.kortance.KortanceKt"
-    }
+nativeImage.dependsOn check
 
-    from {
-        image = "adoptopenjdk/openjdk14-openj9:alpine-slim"
-    }
-
-    container {
-        jvmFlags = ["-Xquickstart"]
-    }
+graal {
+    mainClass 'de.smartsquare.kortance.KortanceKt'
+    outputName 'kortance'
 }
-
-jibDockerBuild.dependsOn check
 
 application {
     mainClassName = "de.smartsquare.kortance.KortanceKt"

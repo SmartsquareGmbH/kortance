@@ -1,14 +1,22 @@
 package de.smartsquare.kortance
 
-import com.github.ajalt.clikt.core.CliktCommand
-import com.github.ajalt.clikt.core.subcommands
 import de.smartsquare.kortance.scenarios.soak.SoakCommand
 import de.smartsquare.kortance.scenarios.spike.SpikeCommand
 import de.smartsquare.kortance.scenarios.stress.StressCommand
+import picocli.CommandLine
+import java.util.concurrent.Callable
 
-class Kortance : CliktCommand() {
+@CommandLine.Command(name = "kortance", subcommands = [StressCommand::class, SpikeCommand::class, SoakCommand::class])
+class Kortance : Callable<Int> {
 
-    override fun run() {}
+    @CommandLine.Spec
+    var spec: CommandLine.Model.CommandSpec? = null
+
+    override fun call(): Int {
+        throw CommandLine.ParameterException(spec?.commandLine(), "Please specify the scenario that fits your needs!")
+    }
 }
 
-fun main(args: Array<String>) = Kortance().subcommands(StressCommand(), SoakCommand(), SpikeCommand()).main(args)
+fun main(args: Array<String>) {
+    CommandLine(Kortance()).execute(*args)
+}

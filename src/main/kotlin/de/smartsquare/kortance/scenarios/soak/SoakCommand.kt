@@ -1,39 +1,66 @@
 package de.smartsquare.kortance.scenarios.soak
 
-import com.github.ajalt.clikt.parameters.options.default
-import com.github.ajalt.clikt.parameters.options.option
-import com.github.ajalt.clikt.parameters.types.int
-import com.github.ajalt.clikt.parameters.types.long
 import de.smartsquare.kortance.ClientFactory
-import de.smartsquare.kortance.MqttCommand
+import de.smartsquare.kortance.CredentialOptions
+import de.smartsquare.kortance.WaveOptions
+import de.smartsquare.kortance.delay
+import de.smartsquare.kortance.randomPayload
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import picocli.CommandLine
+import java.util.concurrent.Callable
 
-class SoakCommand : MqttCommand("Spawns a wave of clients which keep publishing until termination.") {
+@CommandLine.Command(name = "soak")
+class SoakCommand : Callable<Int> {
 
-    private val waves: Int by option("-w", "--waves", help = "The number of waves.")
-        .int().default(10)
+    @CommandLine.Parameters(index = "0", description = ["The hostname of the broker."])
+    private lateinit var host: String
 
-    private val jobs: Int by option("-j", "--jobs", help = "The amount of jobs per wave.")
-        .int().default(10)
+    @CommandLine.Parameters(index = "1", description = ["The port of the broker."])
+    private var port: Int = 1883
 
-    private val waveDelay: Long by option("-d", "--delay", help = "The delay between the waves in milliseconds.")
-        .long().default(30_000L)
+    @CommandLine.Option(names = ["-s", "--ssl"], description = ["If the communication should be encrypted using TLS."])
+    private var ssl: Boolean = false
 
-    override fun run() {
-        repeat(waves) { wave ->
-            println("Launching wave ${wave + 1} / $waves")
+    @CommandLine.ArgGroup(exclusive = false)
+    private var credentialOptions: CredentialOptions? = null
+
+    @CommandLine.ArgGroup(exclusive = false)
+    private lateinit var waveOptions: WaveOptions
+
+    @CommandLine.Option(names = ["-j", "--jobs"])
+    private var jobs: Int = 10
+
+    override fun call(): Int {
+        repeat(waveOptions.waves) { wave ->
+            println("Launching wave ${wave + 1} / ${waveOptions.waves}")
 
             repeat(jobs) { job ->
-                val mqttClient = ClientFactory.createClient(host, port, credentials, ssl)
-                val soakClient = SoakClient(mqttClient, wave + 1, job + 1)
+                val client = ClientFactory.createClient(host, port, credentialOptions, ssl)
 
-                GlobalScope.launch { soakClient.run() }
+                GlobalScope.launch {
+                    client.connect()
+
+                    try {
+                        while (true) {
+                            client.publishWith()
+                                .topic("internal/kortance/${wave + 1}/${job + 1}")
+                                .payload(randomPayload(size = 150))
+                                .send()
+
+                            delay(min = 1, max = 100)
+                        }
+                    } finally {
+                        client.disconnect()
+                    }
+                }
             }
 
-            Thread.sleep(waveDelay)
+            Thread.sleep(waveOptions.waveDelay)
         }
 
         println("All jobs spawned. Waiting for manual termination...")
+
+        return 0
     }
 }

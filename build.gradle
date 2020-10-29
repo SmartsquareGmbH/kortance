@@ -75,10 +75,14 @@ detekt {
 }
 
 nativeImage.dependsOn check
+nativeImage.dependsOn jar
 
 graal {
     mainClass 'de.smartsquare.kortance.KortanceKt'
     outputName 'kortance'
+    option "--no-fallback"
+    option "--no-server"
+    option "--report-unsupported-elements-at-runtime"
 }
 
 application {

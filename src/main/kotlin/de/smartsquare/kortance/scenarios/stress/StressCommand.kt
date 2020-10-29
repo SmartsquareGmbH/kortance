@@ -1,9 +1,10 @@
 package de.smartsquare.kortance.scenarios.stress
 
-import de.smartsquare.kortance.ClientFactory
 import de.smartsquare.kortance.CredentialOptions
 import de.smartsquare.kortance.WaveOptions
 import de.smartsquare.kortance.delay
+import de.smartsquare.kortance.mqtt.ClientFactory
+import de.smartsquare.kortance.mqtt.SupportedMqttVersion
 import de.smartsquare.kortance.randomPayload
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -34,21 +35,21 @@ class StressCommand : Callable<Int> {
     @CommandLine.Option(names = ["-m", "--messages"])
     private var messageCount: Int = 1000
 
+    @CommandLine.Option(names = ["-v", "--version"])
+    private var mqttVersion: SupportedMqttVersion = SupportedMqttVersion.V3
+
     override fun call(): Int {
         repeat(waveOptions.waves) { wave ->
             println("Launching wave ${wave + 1} / ${waveOptions.waves}")
 
             repeat(jobs) { job ->
-                val client = ClientFactory.createClient(host, port, credentialOptions, ssl)
+                val client = ClientFactory.create(host, port, credentialOptions, ssl, mqttVersion)
 
                 GlobalScope.launch {
                     client.connect()
 
                     repeat(messageCount) {
-                        client.publishWith()
-                            .topic("internal/kortance/${wave + 1}/${job + 1}")
-                            .payload(randomPayload(size = 150))
-                            .send()
+                        client.publish("internal/kortance/${wave + 1}/${job + 1}", randomPayload(size = 150))
 
                         delay(min = 1, max = 100)
                     }

@@ -1,7 +1,8 @@
 package de.smartsquare.kortance.scenarios.spike
 
-import de.smartsquare.kortance.ClientFactory
 import de.smartsquare.kortance.CredentialOptions
+import de.smartsquare.kortance.mqtt.ClientFactory
+import de.smartsquare.kortance.mqtt.SupportedMqttVersion
 import de.smartsquare.kortance.randomPayload
 import picocli.CommandLine
 import java.util.concurrent.Callable
@@ -24,14 +25,17 @@ class SpikeCommand : Callable<Int> {
     @CommandLine.Option(names = ["-m", "--messages"])
     private var messageCount: Int = 1000
 
+    @CommandLine.Option(names = ["-v", "--version"])
+    private var mqttVersion: SupportedMqttVersion = SupportedMqttVersion.V3
+
     override fun call(): Int {
-        with(ClientFactory.createClient(host, port, credentialOptions, ssl)) {
+        with(ClientFactory.create(host, port, credentialOptions, ssl, mqttVersion)) {
             print("Publishing $messageCount messages... ")
 
             connect()
 
             repeat(messageCount) {
-                publishWith().topic("internal/kortance").payload(randomPayload(size = 150)).send()
+                publish("internal/kortance", randomPayload(size = 150))
             }
 
             disconnect()

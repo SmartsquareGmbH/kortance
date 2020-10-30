@@ -86,6 +86,8 @@ graal {
 
     option "--no-server"
     option "--no-fallback"
+    option "-Dio.netty.noUnsafe=true"
+    option "--static"
     option "--allow-incomplete-classpath"
 }
 
